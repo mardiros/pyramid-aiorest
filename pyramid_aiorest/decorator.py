@@ -1,5 +1,6 @@
 import venusian
 
+from pyramid_yards.yards import RequestSchema
 from .views import AioViewMapperFactory
 
 
@@ -48,3 +49,18 @@ class resource_config(object):
 
         settings['_info'] = info.codeinfo # fbo "action_method"
         return wrapped
+
+
+def ioschema(request_schema=None, response_schema=None):
+
+    if request_schema:
+        request_schema = RequestSchema(request_schema())
+
+    def wrapper(view_method):
+        def wrapped(view_class, request):
+            if request_schema:
+                request_schema(request)
+            return view_method(view_class, request)
+        return wrapped
+
+    return wrapper

@@ -24,6 +24,7 @@ with open(os.path.join(here, NAME.replace('-', '_'),
 
 requires = [
     'pyramid_asyncio',
+    'pyramid_yards',
     ]
 
 if py_version < (3, 4):
