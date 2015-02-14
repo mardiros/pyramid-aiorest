@@ -1,8 +1,10 @@
+import asyncio
+
 import venusian
-
 from pyramid_yards.yards import RequestSchema
-from .views import AioViewMapperFactory
 
+from .views import AioViewMapperFactory
+from .schema import ResponseSchema
 
 class resource_config(object):
     """
@@ -56,11 +58,18 @@ def ioschema(request_schema=None, response_schema=None):
     if request_schema:
         request_schema = RequestSchema(request_schema())
 
+    if response_schema:
+        response_schema = ResponseSchema(response_schema())
+
     def wrapper(view_method):
+        @asyncio.coroutine
         def wrapped(view_class, request):
             if request_schema:
-                request_schema(request)
-            return view_method(view_class, request)
+                request = request_schema(request)
+            response = yield from view_method(view_class, request)
+            if response_schema:
+                response = response_schema(response)
+            return response
         return wrapped
 
     return wrapper

@@ -6,6 +6,7 @@ from pyramid_yards import ValidationFailure
 from pyramid import httpexceptions
 
 from .i18n import gettext as _
+from .schema import ResponseError
 
 @view_config(context=ValidationFailure)
 def validation_failure(exc, request):
@@ -18,6 +19,20 @@ def validation_failure(exc, request):
     response = Response(json.dumps(error))
     response.content_type = 'application/json'
     response.status_int = 422
+    return response
+
+
+@view_config(context=ResponseError)
+def validation_failure(exc, request):
+    # If the view has two formal arguments, the first is the context.
+    # The context is always available as ``request.context`` too.
+    error = {
+        'message': _('Internal Server Error'),
+        'errors': exc.errors,
+    }
+    response = Response(json.dumps(error))
+    response.content_type = 'application/json'
+    response.status_int = 500
     return response
 
 
