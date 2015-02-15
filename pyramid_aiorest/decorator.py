@@ -56,20 +56,25 @@ class resource_config(object):
 def ioschema(request_schema=None, response_schema=None):
 
     if request_schema:
-        request_schema = RequestSchema(request_schema())
+        validate_req = RequestSchema(request_schema)
 
     if response_schema:
-        response_schema = ResponseSchema(response_schema())
+        validate_resp = ResponseSchema(response_schema)
 
     def wrapper(view_method):
+
         @asyncio.coroutine
         def wrapped(view_class, request):
             if request_schema:
-                request = request_schema(request)
+                request = validate_req(request)
             response = yield from view_method(view_class, request)
             if response_schema:
-                response = response_schema(response)
+                response = validate_resp(response)
             return response
+
+        # Keep reference of the schema in the view for introspection
+        wrapped.request_schema = request_schema
+        wrapped.response_schema = response_schema
         return wrapped
 
     return wrapper
