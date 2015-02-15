@@ -84,14 +84,12 @@ class ResponseSchema:
                     errors[prefix + key] = val
 
     def __call__(self, response):
-
-        assert isinstance(response, dict), "%r" % response
-
         resp = {'status_code': 200, 'json': {}, 'headerlist': []}
         errors = {}
         self.validate(response, self.schema, resp, errors)
         if errors:
             raise ResponseError(errors)
-        log.info(resp['json'])
-        resp['body'] = json.dumps(resp.pop('json'), cls=JSONEncoder)
+        json_body = resp.pop('json')
+        if json_body:
+            resp['body'] = json.dumps(json_body, cls=JSONEncoder)
         return Response(**resp)

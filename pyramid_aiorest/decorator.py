@@ -4,7 +4,7 @@ import venusian
 from pyramid_yards.yards import RequestSchema
 
 from .views import AioViewMapperFactory
-from .schema import ResponseSchema
+from .response import ResponseSchema
 
 class resource_config(object):
     """

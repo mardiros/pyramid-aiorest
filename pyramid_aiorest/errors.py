@@ -6,7 +6,7 @@ from pyramid_yards import ValidationFailure
 from pyramid import httpexceptions
 
 from .i18n import gettext as _
-from .schema import ResponseError
+from .response import ResponseError
 
 @view_config(context=ValidationFailure)
 def validation_failure(exc, request):
