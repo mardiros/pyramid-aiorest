@@ -23,6 +23,7 @@ with open(os.path.join(here, PKGNAME, '__init__.py')) as version:
 
 
 requires = ['colander',
+            'simplejson',
             'pyramid-asyncio',
             'pyramid-yards',
             ]
