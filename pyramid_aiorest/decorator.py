@@ -1,16 +1,18 @@
 import asyncio
 
 import venusian
+from pyramid.exceptions import Forbidden
 from pyramid_yards.yards import RequestSchema
 
 from .views import AioViewMapperFactory
 from .response import ResponseSchema
 
+
 class resource_config(object):
     """
     A patched version of view_config used for view methods
     """
-    venusian = venusian # for testing injection
+    venusian = venusian  # for testing injection
     def __init__(self, **settings):
         if 'for_' in settings:
             if settings.get('context') is None:
@@ -53,8 +55,10 @@ class resource_config(object):
         return wrapped
 
 
-def ioschema(request_schema=None, response_schema=None):
-
+def async_view(request_schema=None,
+               response_schema=None,
+               permission=None):
+    """Define a pyramid view to run as a asyncio coroutine."""
     if request_schema:
         validate_req = RequestSchema(request_schema)
 
@@ -65,6 +69,10 @@ def ioschema(request_schema=None, response_schema=None):
 
         @asyncio.coroutine
         def wrapped(view_class, request):
+            if permission:
+                perm = yield from request.has_permission(permission)
+                if not perm:
+                    raise Forbidden()
             if request_schema:
                 request = validate_req(request)
             response = yield from view_method(view_class, request)
